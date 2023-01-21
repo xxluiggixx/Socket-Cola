@@ -78,6 +78,11 @@ class TicketControl {
         return ticket;
         
     }
+
+    ticketsPendientes(){
+        console.log(this.tickets.length)
+        return this.tickets.length;
+    }
 }
 
 

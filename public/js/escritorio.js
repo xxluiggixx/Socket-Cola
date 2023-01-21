@@ -1,6 +1,9 @@
 
-const lblEscritorio = document.querySelector('h1');
-const btnAtender = document.querySelectector('button');
+const lblEscritorio     = document.querySelector('h1');
+const btnAtender        = document.querySelector('button');
+const lblTicketNumber   = document.querySelector('#ticketNumber');
+const divAlerta         = document.querySelector('.alert');
+const lblPendientes         = document.querySelector('#lblPendientes');
 
 
 const searchParams = new URLSearchParams( window.location.search );
@@ -13,21 +16,26 @@ if ( !searchParams.has('escritorio') ){
 const escritorio = searchParams.get('escritorio');
 lblEscritorio.innerText = escritorio;
 
+divAlerta.style.display = 'none';
+
 const socket = io();
 
 socket.on('ultimo-ticket', (ultimoTicket) => {
-    lblNuevoTicket.innerText = "Ticket " + ultimoTicket;
+    //lblNuevoTicket.innerText = "Ticket " + ultimoTicket;
 })
 
-socket.on('connect', () => {
-
-    btnCrear.disabled = false;
+socket.on('tickets-pendientes', (ticketsPendientes) => {
+    if(ticketsPendientes === 0){
+    } else {
+        lblPendientes.style.display = '';
+        lblPendientes.innerText = ticketsPendientes;
+    }
 
 });
 
 socket.on('disconnect', () => {
 
-    btnCrear.disabled = true;
+    btnAtender.disabled = true;
 });
 
 
@@ -35,8 +43,18 @@ socket.on('disconnect', () => {
 
 btnAtender.addEventListener( 'click', () => {
 
-    socket.emit( 'siguiente-ticket', null, ( ticket ) => {
+    socket.emit('atender-ticket', { escritorio }, ( payload ) => {
+        const { ok, ticket , msg } = payload;
+        if (!ok){
+            lblTicketNumber.innerText = ' Nadie.'
+           return divAlerta.style.display = '';
+        } 
+            
+            lblTicketNumber.innerText = ticket?.numero;
+
+    })
+    /* socket.emit( 'siguiente-ticket', null, ( ticket ) => {
         lblNuevoTicket.innerText = ticket;
-    });
+    }); */
 
 });
